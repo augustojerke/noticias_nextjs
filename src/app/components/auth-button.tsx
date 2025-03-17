@@ -10,9 +10,7 @@ export function AuthButton() {
 
   useEffect(() => {
     if (session) {
-      const userName = encodeURIComponent(session.user?.name || "");
-      const userImage = encodeURIComponent(session.user?.image || "");
-      router.push(`/noticia?name=${userName}&image=${userImage}`);
+      router.push(`/noticia`);
     }
   }, [session, router]);
 

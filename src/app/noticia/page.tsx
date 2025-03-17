@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function Noticias() {
-  const searchParams = useSearchParams();
-  const name = searchParams.get("name") || "Usuário";
-  const image = searchParams.get("image") || "/default-avatar.png";
+  const { data: session } = useSession();
+  const name = session?.user?.name || "Usuário";
+  const image = session?.user?.image || "/default-avatar.png";
   const [noticias, setNoticias] = useState([]);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Noticias() {
         />
       </div>
       <div className="flex-col justify-center items-center">
-        {noticias?.map((n: any, index: number) => (
+        {noticias?.map((n: any, index) => (
           <div
             key={index}
             className="bg-slate-950 border border-slate-600 rounded-3xl mt-5 hover:bg-slate-200 hover:text-black"
