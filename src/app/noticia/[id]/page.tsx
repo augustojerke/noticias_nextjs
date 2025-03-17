@@ -20,7 +20,7 @@ async function fetchComentarios(id: string) {
 }
 
 export default function Noticia({ params }: any) {
-  const { id } = use(params);
+  const { id } : any = use(params);
 
   const { data: noticia, error: noticiaError, isLoading: noticiaLoading } = useQuery({
     queryKey: ["noticia", id],
