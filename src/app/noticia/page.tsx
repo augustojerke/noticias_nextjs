@@ -1,28 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+
+async function fetchNoticias() {
+  const response = await fetch("http://localhost:3000/api/noticias");
+  if (!response.ok) {
+    throw new Error("Erro ao buscar notícias");
+  }
+  return response.json();
+}
 
 export default function Noticias() {
   const { data: session } = useSession();
   const name = session?.user?.name || "Usuário";
   const image = session?.user?.image || "/default-avatar.png";
-  const [noticias, setNoticias] = useState([]);
 
-  useEffect(() => {
-    const fetchNoticias = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/noticias");
-        const data = await response.json();
-        setNoticias(data);
-      } catch (error) {
-        console.error("Erro ao buscar notícias:", error);
-      }
-    };
-    fetchNoticias();
-  }, []);
+  const { data: noticias, error, isLoading } = useQuery({
+    queryKey: ["noticias"],
+    queryFn: fetchNoticias,
+  });
+
+  if (isLoading) return <p>Carregando...</p>;
+  if (error) return <p>Erro ao carregar notícias.</p>;
 
   return (
     <div className="text-center px-72">
@@ -37,9 +39,9 @@ export default function Noticias() {
         />
       </div>
       <div className="flex-col justify-center items-center">
-        {noticias?.map((n: any, index) => (
+        {noticias?.map((n) => (
           <div
-            key={index}
+            key={n.id}
             className="bg-slate-950 border border-slate-600 rounded-3xl mt-5 hover:bg-slate-200 hover:text-black"
           >
             <Link href={`/noticia/${n.id}`}>{n.title}</Link>

@@ -1,13 +1,39 @@
-export default async function Noticia({ params }: any) {
-  const { id } = params;
+"use client";
 
-  const [postRes, commentsRes] = await Promise.all([
-    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`),
-    fetch(`https://jsonplaceholder.typicode.com/comments?postId=${id}`),
-  ]);
+import { useQuery } from "@tanstack/react-query";
+import { use } from "react";
 
-  const noticia = await postRes.json();
-  const comentarios = await commentsRes.json();
+async function fetchNoticia(id: string) {
+  const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  if (!response.ok) {
+    throw new Error("Erro ao buscar a notícia");
+  }
+  return response.json();
+}
+
+async function fetchComentarios(id: string) {
+  const response = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${id}`);
+  if (!response.ok) {
+    throw new Error("Erro ao buscar comentários");
+  }
+  return response.json();
+}
+
+export default function Noticia({ params }: any) {
+  const { id } = use(params);
+
+  const { data: noticia, error: noticiaError, isLoading: noticiaLoading } = useQuery({
+    queryKey: ["noticia", id],
+    queryFn: () => fetchNoticia(id),
+  });
+
+  const { data: comentarios, error: comentariosError, isLoading: comentariosLoading } = useQuery({
+    queryKey: ["comentarios", id],
+    queryFn: () => fetchComentarios(id),
+  });
+
+  if (noticiaLoading || comentariosLoading) return <p>Carregando...</p>;
+  if (noticiaError || comentariosError) return <p>Erro ao carregar a notícia ou comentários.</p>;
 
   return (
     <div className="flex-col justify-center items-center h-screen text-center px-10 sm:px-24">
